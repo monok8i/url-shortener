@@ -1,0 +1,26 @@
+networks:
+  docker-network:
+    name: docker-network
+    driver: bridge
+
+services:
+  api:
+    image: api:latest
+    container_name: api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: no
+
+    env_file:
+      - .env
+
+    ports:
+      - "${API_PORT}:${API_PORT}"
+
+    volumes:
+      - ./src/:/app/src/
+      - ./main.py:/app/main.py
+
+    networks:
+      - docker-network
