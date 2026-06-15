@@ -68,7 +68,9 @@ async def url_stats(
     repo = URLRepository(db)
     url = await repo.get_stats(short_code)
     if url is None:
-        return HTMLResponse("URL not found", status_code=404)
+        return templates.TemplateResponse(
+            request, "not_found.html", status_code=404,
+        )
 
     host = request.base_url
     short_url = str(host).rstrip("/") + "/" + url.short_code
@@ -140,11 +142,13 @@ async def delete_url_form(
     url = await repo.get_stats(short_code)
     if url is not None:
         await repo.delete(url)
+
     return RedirectResponse(url="/", status_code=303)
 
 
-@router.get("/{short_code}")
+@router.get("/{short_code}", response_model=None)
 async def redirect_to_url(
+    request: Request,
     short_code: str,
     db: AsyncSession = Depends(get_db),
 ) -> RedirectResponse | HTMLResponse:
@@ -160,6 +164,8 @@ async def redirect_to_url(
     repo = URLRepository(db)
     url = await repo.get_by_short_code(short_code)
     if url is None:
-        return HTMLResponse("URL not found", status_code=404)
+        return templates.TemplateResponse(
+            request, "not_found.html", status_code=404,
+        )
 
     return RedirectResponse(url=url.original_url, status_code=307)
