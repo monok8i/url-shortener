@@ -1,13 +1,13 @@
 """Global configuration container for the application.
 
-This module lazily instantiates API, AI, embedding, and database
-configuration objects and exposes them through a single shared ``config``
-instance.
+This module lazily instantiates API and database configuration objects and
+exposes them through a single shared ``config`` instance.
 """
 
 from functools import cached_property
 
 from src.api.config import Config as APIConfig
+from src.db.config import Config as DBConfig
 
 
 class Config:
@@ -25,6 +25,15 @@ class Config:
             API configuration object.
         """
         return APIConfig()  # type: ignore
+
+    @cached_property
+    def db(self) -> DBConfig:
+        """Return the database connection configuration.
+
+        Returns:
+            Database configuration object.
+        """
+        return DBConfig()  # type: ignore
 
 
 config = Config()

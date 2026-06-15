@@ -1,11 +1,14 @@
 """Application setup helpers for building the FastAPI server."""
 
+from pathlib import Path
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from src.api.router import api_router
 from src.api.events.lifespan import lifespan
+from src.api.router import api_router, page_router
 from src.core.config._global import config
 
 
@@ -16,8 +19,9 @@ def create_fastapi() -> FastAPI:
         Configured FastAPI application instance.
     """
 
-    app = FastAPI(title="What Now API", lifespan=lifespan)
+    app = FastAPI(title="URL Shortener", lifespan=lifespan)
     app.state.project_config = config
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.api.ALLOW_ORIGINS,
@@ -26,7 +30,16 @@ def create_fastapi() -> FastAPI:
         allow_headers=config.api.ALLOW_HEADERS,
     )
 
+    static_dir = Path(__file__).parent / "static"
+    if static_dir.is_dir():
+        app.mount(
+            "/static",
+            StaticFiles(directory=str(static_dir)),
+            name="static",
+        )
+
     app.include_router(api_router)
+    app.include_router(page_router)
 
     return app
 

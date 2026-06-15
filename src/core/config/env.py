@@ -1,4 +1,4 @@
-"""Shared Pydantic settings base for environment-variable driven config."""  # noqa: E501
+"""Shared Pydantic settings base for environment-variable driven config."""
 
 from pathlib import Path
 

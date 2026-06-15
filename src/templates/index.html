@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}URL Shortener{% endblock %}
+
+{% block content %}
+<h1>URL Shortener</h1>
+
+<section class="create-form">
+    <h2>Create a short URL</h2>
+    <form action="/" method="post">
+        <input
+            type="url"
+            name="original_url"
+            placeholder="https://example.com/very/long/url"
+            required
+        >
+        <button type="submit">Shorten</button>
+    </form>
+</section>
+
+<section class="url-list">
+    <h2>Your short URLs</h2>
+    {% if urls %}
+    <table>
+        <thead>
+            <tr>
+                <th>Original URL</th>
+                <th>Short URL</th>
+                <th>Clicks</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for url in urls %}
+            <tr>
+                <td class="original-url" title="{{ url.original_url }}">
+                    {{ url.original_url[:60] }}{% if url.original_url|length > 60 %}&hellip;{% endif %}
+                </td>
+                <td>
+                    <a href="/{{ url.short_code }}" target="_blank">
+                        {{ request.base_url }}{{ url.short_code }}
+                    </a>
+                </td>
+                <td>{{ url.clicks }}</td>
+                <td>{{ url.created_at.strftime("%Y-%m-%d") }}</td>
+                <td class="actions">
+                    <a href="/{{ url.short_code }}/stats" class="btn-stats">Stats</a>
+                    <form action="/{{ url.short_code }}/delete" method="post" class="inline-form">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty">No URLs yet. Create one above!</p>
+    {% endif %}
+</section>
+{% endblock %}
