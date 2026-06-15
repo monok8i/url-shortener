@@ -20,6 +20,7 @@ def _normalise_url(url: str) -> str:
     Returns:
         A URL with an explicit scheme.
     """
+
     if not url.startswith(("http://", "https://")):
         return f"https://{url}"
     return url
@@ -39,6 +40,7 @@ async def index(
     Returns:
         Rendered HTML page.
     """
+
     repo = URLRepository(db)
     urls = await repo.list_all()
 
@@ -65,11 +67,14 @@ async def url_stats(
     Returns:
         Rendered HTML page or 404 if not found.
     """
+
     repo = URLRepository(db)
     url = await repo.get_stats(short_code)
     if url is None:
         return templates.TemplateResponse(
-            request, "not_found.html", status_code=404,
+            request,
+            "not_found.html",
+            status_code=404,
         )
 
     host = request.base_url
@@ -96,6 +101,7 @@ async def create_url(
     Returns:
         Redirect back to the homepage.
     """
+
     repo = URLRepository(db)
     await repo.create(_normalise_url(original_url))
     return RedirectResponse(url="/", status_code=303)
@@ -115,6 +121,7 @@ async def delete_url_api(
     Returns:
         204 No Content on success, 404 if not found.
     """
+
     repo = URLRepository(db)
     url = await repo.get_stats(short_code)
     if url is None:
@@ -138,6 +145,7 @@ async def delete_url_form(
     Returns:
         Redirect back to the homepage.
     """
+
     repo = URLRepository(db)
     url = await repo.get_stats(short_code)
     if url is not None:
@@ -155,17 +163,21 @@ async def redirect_to_url(
     """Redirect a short code to its original URL.
 
     Args:
+        request: The incoming HTTP request.
         short_code: The short code to resolve.
         db: Async database session.
 
     Returns:
         HTTP redirect to the original URL, or 404 if not found.
     """
+
     repo = URLRepository(db)
     url = await repo.get_by_short_code(short_code)
     if url is None:
         return templates.TemplateResponse(
-            request, "not_found.html", status_code=404,
+            request,
+            "not_found.html",
+            status_code=404,
         )
 
     return RedirectResponse(url=url.original_url, status_code=307)
